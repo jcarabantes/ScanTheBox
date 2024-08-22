@@ -6,12 +6,15 @@ import time
 import requests
 
 # Todo
-
+# 
+# workspaces creation
+# modules classes
+# interactive mode to load workspace and execute specific tasks
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
 # add nuclei
 # fingerprint nmap
-# 445
+# 445: enum4linux -a solarlab.htb
 
 def create_structure():
     folders = ['files', 'gobuster', 'nmap', 'wordlists']
@@ -52,8 +55,8 @@ def nmap_all_ports(hostname):
 def nmap_common_tcp_ports(hostname):
     print("Starting nmap scan for common TCP ports")
     output_file_base = os.path.join('nmap', f"common-tcp-ports")
-    result = subprocess.run(['nmap', '-p80', '-Pn', hostname, '-oA', output_file_base], capture_output=True, text=True)
-    # result = subprocess.run(['nmap', '-Pn', hostname, '-oA', output_file_base], capture_output=True, text=True)
+    # result = subprocess.run(['nmap', '-p80', '-Pn', hostname, '-oA', output_file_base], capture_output=True, text=True)
+    result = subprocess.run(['nmap', '-Pn', hostname, '-oA', output_file_base], capture_output=True, text=True)
     
     print("Nmap Scan Results for all TCP ports:")
     print(result.stdout)
@@ -107,7 +110,7 @@ def get_whatweb_command(hostname, port):
 
 def get_gobuster_command(hostname, port, wordlist):
     basename = wordlist.split("/")[-1:][0]
-    return f"xterm -hold -e 'gobuster -u http://{hostname}:{port} -w {wordlist} -o gobuster_{basename}_{hostname}_{port}'"
+    return f"xterm -hold -e 'gobuster -u http://{hostname}:{port} -w {wordlist} -o gobuster/gobuster_{basename}_{hostname}_{port}'"
 
 def get_vhost_wfuzz_command(hostname, port, wordlist):
     # We first need to know what's the content-length when 
@@ -174,7 +177,6 @@ def get_open_http_ports_from_nmap_output(nmap_output_file):
     except Exception as e:
         print(f"Se produjo un error al leer {nmap_output_file}: {e}")
         return []
-
 
 def main():
     
