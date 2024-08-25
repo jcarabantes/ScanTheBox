@@ -12,7 +12,6 @@ import requests
 # interactive mode to load workspace and execute specific tasks
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
-# add nuclei
 # fingerprint nmap
 # 445: enum4linux -a solarlab.htb
 
@@ -24,7 +23,7 @@ def create_structure():
     print(f"Created subdirectories: {', '.join(folders)}")
 
 def check_tools():
-    required_tools = ['nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz']
+    required_tools = ['nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker']
     missing_tools = []
     
     for tool in required_tools:
@@ -106,7 +105,7 @@ def extract_ports(nmap_output):
     return ports
 
 def get_whatweb_command(hostname, port):
-    return f"xterm -hold -e 'whatweb http://{hostname}:{port} | tee whatweb_{hostname}_{port}'"
+    return f"xterm -hold -e 'whatweb -a 2 http://{hostname}:{port} | tee whatweb_{hostname}_{port}'"
 
 def get_gobuster_command(hostname, port, wordlist):
     basename = wordlist.split("/")[-1:][0]
@@ -116,25 +115,48 @@ def get_vhost_wfuzz_command(hostname, port, wordlist):
     # We first need to know what's the content-length when 
     # we request a non-existent virtual host
     response = requests.get(headers={"Host": f"nonexistent.{hostname}"},url=f"http://{hostname}:{port}", allow_redirects=False)
-    cl = response.headers['Content-Length']
-    print(f"Content-length when invalid vhost is checked is: {cl}")
-    return f'wfuzz -c -w {wordlist} -H "Host: FUZZ.{hostname}" --hh {cl} http://{hostname}'
+
+    try:
+        cl = response.headers['Content-Length']
+        print(f"Content-length when invalid vhost is checked is: {cl}")
+        return f'wfuzz -c -w {wordlist} -H "Host: FUZZ.{hostname}" --hh {cl} http://{hostname}'
+    except Exception as e:
+        print("[ERROR] Content-length could not be fetch, vhost bruteforce with wfuzz will not be executed")
+        print(e)
+        return None
+
+def get_nuclei_command(hostname, port):
+#    return f"xterm -hold -e 'docker run --rm -it projectdiscovery/nuclei:latest -target http://{hostname}:{port} | tee nuclei_{hostname}_{port}'"
+    return f"docker run --rm -it -v /etc/hosts:/etc/hosts projectdiscovery/nuclei:latest -target http://{hostname}:{port} | tee nuclei_{hostname}_{port}"
+
+def get_nikto_command(hostname, port):
+    return f"xterm -hold -e 'nikto -host http://{hostname}:{port} | tee nuclei_{hostname}_{port}'"
 
 def spawn_http_tools(hostname, ports):
     for port in ports:
         print(f"HTTP service detected on port {port}, spawning xterm windows for whatweb and gobuster")
         whatweb_command = get_whatweb_command(hostname, port)
+        
         gobuster_command_common = get_gobuster_command(hostname, port, "/usr/share/dirb/wordlists/common.txt")
         gobuster_command_files = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-files.txt")
         gobuster_command_directories = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-directories.txt")
+        
         vhost_bruteforce_command = get_vhost_wfuzz_command(hostname, port, "/home/remnux/SecLists/Discovery/DNS/namelist.txt")
-        # print(gobuster_command)
+        nuclei_command = get_nuclei_command(hostname, port)
+        nikto_command = get_nikto_command(hostname, port)
 
-        whatweb_process = subprocess.Popen(whatweb_command, shell=True)
-        common_process = subprocess.Popen(gobuster_command_common, shell=True)
+
+        subprocess.Popen(whatweb_command, shell=True)
+        subprocess.Popen(gobuster_command_common, shell=True)
         subprocess.Popen(gobuster_command_files, shell=True)
         subprocess.Popen(gobuster_command_directories, shell=True)
-        subprocess.Popen(vhost_bruteforce_command, shell=True)
+        if vhost_bruteforce_command:
+            subprocess.Popen(vhost_bruteforce_command, shell=True)
+        
+        # when using docker, we need to use os.system(): https://stackoverflow.com/questions/59507395/how-do-i-use-python-to-launch-an-interactive-docker-container
+        os.system(nuclei_command)
+
+        subprocess.Popen(nikto_command, shell=True)
 
 def dns_query(hostname):
     dns_server = get_ip_from_etc_hosts( hostname )
@@ -178,20 +200,42 @@ def get_open_http_ports_from_nmap_output(nmap_output_file):
         print(f"Se produjo un error al leer {nmap_output_file}: {e}")
         return []
 
+
+def usage():
+    print("Usage:")
+    print("  scanthebox.py new <hostname>  - Run scans on a new host")
+    print("  scanthebox.py load <hostname> - Load and process existing scan data")
+    sys.exit(0)
+
 def main():
-    
+
     parser = argparse.ArgumentParser(description="Process hostname input and perform nmap scans.")
-    parser.add_argument('hostname', nargs='?', help='The hostname to process')
+    subparsers = parser.add_subparsers(dest='command', help='sub-command help')
+
+    # Subcomando "new"
+    parser_new = subparsers.add_parser('new', help='Start a new scan on the specified hostname')
+    parser_new.add_argument('hostname', help='The hostname to process')
+
+    # Subcomando "load"
+    parser_load = subparsers.add_parser('load', help='Load an existing scan for the specified hostname')
+    parser_load.add_argument('hostname', help='The hostname to load')
 
     args = parser.parse_args()
 
+    if args.command == 'new':
+        hostname = args.hostname
+        print(f"Starting new scan for {hostname}")
+        # Aquí va la lógica para escanear el nuevo hostname
+    elif args.command == 'load':
+        hostname = args.hostname
+        print("loading...")
+        # Aquí va la lógica para cargar un escaneo existente
+    else:
+        usage()
+
+
     # Check for required tools
     check_tools()
-
-    if args.hostname:
-        hostname = args.hostname
-    else:
-        hostname = input("Please enter the hostname: ")
 
     print("Hostname:", hostname)
 
