@@ -105,7 +105,7 @@ def extract_ports(nmap_output):
     return ports
 
 def get_whatweb_command(hostname, port):
-    return f"xterm -hold -e 'whatweb -a 2 http://{hostname}:{port} | tee whatweb_{hostname}_{port}'"
+    return f"xterm -hold -e 'whatweb -a 3 http://{hostname}:{port} 2> /dev/null | tee whatweb_{hostname}_{port}'"
 
 def get_gobuster_command(hostname, port, wordlist):
     basename = wordlist.split("/")[-1:][0]
