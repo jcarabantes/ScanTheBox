@@ -105,7 +105,7 @@ def extract_ports(nmap_output):
     return ports
 
 def get_whatweb_command(hostname, port):
-    return f"xterm -hold -e 'whatweb -a 3 http://{hostname}:{port} 2> /dev/null | tee whatweb_{hostname}_{port}'"
+    return f"xterm -hold -e 'whatweb -a 4 http://{hostname}:{port} 2> /dev/null| tee whatweb_{hostname}_{port}'"
 
 def get_gobuster_command(hostname, port, wordlist):
     basename = wordlist.split("/")[-1:][0]
@@ -121,7 +121,8 @@ def get_vhost_wfuzz_command(hostname, port, wordlist):
         print(f"Content-length when invalid vhost is checked is: {cl}")
         return f'wfuzz -c -w {wordlist} -H "Host: FUZZ.{hostname}" --hh {cl} http://{hostname}'
     except Exception as e:
-        print("[ERROR] Content-length could not be fetch, vhost bruteforce with wfuzz will not be executed")
+        print("[ERROR] Unable to retrieve the Content-length Header. Automatic wfuzz could not be executed")
+        print("[ERROR] Consider execute wfuzz manually")
         print(e)
         return None
 
@@ -130,7 +131,7 @@ def get_nuclei_command(hostname, port):
     return f"docker run --rm -it -v /etc/hosts:/etc/hosts projectdiscovery/nuclei:latest -target http://{hostname}:{port} | tee nuclei_{hostname}_{port}"
 
 def get_nikto_command(hostname, port):
-    return f"xterm -hold -e 'nikto -host http://{hostname}:{port} | tee nuclei_{hostname}_{port}'"
+    return f"xterm -hold -e 'nikto -host http://{hostname}:{port} | tee nikto_{hostname}_{port}'"
 
 def spawn_http_tools(hostname, ports):
     for port in ports:
