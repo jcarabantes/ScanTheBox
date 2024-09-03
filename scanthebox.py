@@ -10,9 +10,8 @@ from modules.nmap_class import Nmap
 
 
 # Todo
-# 
 # workspaces creation
-# modules classes
+# move functions to a helper
 # interactive mode to load workspace and execute specific tasks
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
