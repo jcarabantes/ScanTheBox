@@ -4,6 +4,10 @@ import subprocess
 import sys
 import time
 import requests
+import yaml
+from modules.nmap_class import Nmap
+
+
 
 # Todo
 # 
@@ -51,7 +55,7 @@ def nmap_all_ports(hostname):
     nmap_command = f"xterm -hold -e 'nmap -p- -T4 -Pn {hostname} -oA nmap/all-ports'"
     subprocess.Popen(nmap_command, shell=True)
 
-def nmap_common_tcp_ports(hostname):
+def _nmap_common_tcp_ports(hostname):
     print("Starting nmap scan for common TCP ports")
     output_file_base = os.path.join('nmap', f"common-tcp-ports")
     # result = subprocess.run(['nmap', '-p80', '-Pn', hostname, '-oA', output_file_base], capture_output=True, text=True)
@@ -95,7 +99,7 @@ def nmap_fingerprint(hostname, ports):
     if dns_ports:
         dns_query(hostname)
 
-def extract_ports(nmap_output):
+def _extract_ports(nmap_output):
     ports = []
     lines = nmap_output.splitlines()
     for line in lines:
@@ -201,12 +205,16 @@ def get_open_http_ports_from_nmap_output(nmap_output_file):
         print(f"Se produjo un error al leer {nmap_output_file}: {e}")
         return []
 
-
 def usage():
     print("Usage:")
     print("  scanthebox.py new <hostname>  - Run scans on a new host")
     print("  scanthebox.py load <hostname> - Load and process existing scan data")
     sys.exit(0)
+
+def parseYaml(config_file):
+    with open(config_file, 'r') as file:
+        config = yaml.safe_load(file)
+    return config
 
 def main():
 
@@ -251,6 +259,15 @@ def main():
 
     # Call create_structure() to create additional folders inside the working directory
     create_structure()
+
+    config_file = "scanthebox.yaml"
+    config_path = os.path.join(os.path.dirname(__file__), config_file)
+    config = parseYaml(config_path)
+    n = Nmap(config)
+    n.scan_common_tcp_ports(hostname)
+    open_ports = n.get_common_tcp_ports()
+
+    sys.exit(0)
 
     # Perform initial nmap scan to find all TCP ports
     open_ports = nmap_common_tcp_ports(hostname)
