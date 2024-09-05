@@ -1,6 +1,7 @@
 import subprocess
 import os
 import yaml
+from modules.output import success, error, info
 
 def usage():
     print("Usage:")
@@ -8,7 +9,7 @@ def usage():
     print("  scanthebox.py load <hostname> - Load and process existing scan data")
     sys.exit(0)
 
-def parseYaml(config_file):
+def parse_yaml(config_file):
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
     return config
@@ -23,14 +24,14 @@ def check_tools():
             missing_tools.append(tool)
     
     if missing_tools:
-        print(f"Missing tools: {', '.join(missing_tools)}")
-        print("Please install the missing tools and try again.")
+        error(f"Missing tools: {', '.join(missing_tools)}")
+        error("Please install the missing tools and try again.")
         exit(1)
     else:
-        print("All required tools are installed.")
+        success("All required tools are installed.")
 
 def check_hostname_responsive(hostname):
-    print(f"Checking if hostname {hostname} is responsive")
+    info(f"Checking if hostname {hostname} is responsive")
     response = subprocess.run(['ping', '-c', '1', hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if response.returncode != 0:
         print(f"Hostname {hostname} is not responsive. Please check the hostname and try again.")

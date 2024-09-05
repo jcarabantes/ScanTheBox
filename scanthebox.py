@@ -6,7 +6,8 @@ import time
 import requests
 import yaml
 from modules.nmap_class import Nmap
-from modules.utils import check_tools, create_structure, usage, parseYaml
+from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml
+from modules.output import success, error, info
 
 
 # Todo
@@ -17,56 +18,10 @@ from modules.utils import check_tools, create_structure, usage, parseYaml
 # fingerprint nmap
 # 445: enum4linux -a solarlab.htb
 
-def _create_structure():
-    folders = ['files', 'gobuster', 'nmap', 'wordlists']
-    for folder in folders:
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-    print(f"Created subdirectories: {', '.join(folders)}")
-
-def _check_tools():
-    required_tools = ['nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker']
-    missing_tools = []
-    
-    for tool in required_tools:
-        if subprocess.call(f"type {tool}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) != 0:
-            missing_tools.append(tool)
-    
-    if missing_tools:
-        print(f"Missing tools: {', '.join(missing_tools)}")
-        print("Please install the missing tools and try again.")
-        exit(1)
-    else:
-        print("All required tools are installed.")
-
-def _check_hostname_responsive(hostname):
-    print(f"Checking if hostname {hostname} is responsive")
-    response = subprocess.run(['ping', '-c', '1', hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if response.returncode != 0:
-        print(f"Hostname {hostname} is not responsive. Please check the hostname and try again.")
-        exit(1)
-    else:
-        print(f"Hostname {hostname} is responsive")
-
 def nmap_all_ports(hostname):
     print(f"Scanning all TCP ports")
     nmap_command = f"xterm -hold -e 'nmap -p- -T4 -Pn {hostname} -oA nmap/all-ports'"
     subprocess.Popen(nmap_command, shell=True)
-
-def _nmap_common_tcp_ports(hostname):
-    print("Starting nmap scan for common TCP ports")
-    output_file_base = os.path.join('nmap', f"common-tcp-ports")
-    # result = subprocess.run(['nmap', '-p80', '-Pn', hostname, '-oA', output_file_base], capture_output=True, text=True)
-    result = subprocess.run(['nmap', '-Pn', hostname, '-oA', output_file_base], capture_output=True, text=True)
-    
-    print("Nmap Scan Results for all TCP ports:")
-    print(result.stdout)
-    if result.stderr:
-        print("Errors:", result.stderr)
-
-    # Extract port numbers from the nmap scan results
-    ports = extract_ports(result.stdout)
-    return ports
 
 def nmap_fingerprint(hostname, ports):
     print(f"Starting nmap scan for detailed fingerprinting on open ports: {', '.join(ports)}")
@@ -96,15 +51,6 @@ def nmap_fingerprint(hostname, ports):
     # If there are DNS ports, call DNS fingerprinting functions
     if dns_ports:
         dns_query(hostname)
-
-def _extract_ports(nmap_output):
-    ports = []
-    lines = nmap_output.splitlines()
-    for line in lines:
-        if '/tcp' in line:  # Filter lines containing port information
-            port = line.split('/')[0].strip()  # Extract the port number
-            ports.append(port)
-    return ports
 
 def get_whatweb_command(hostname, port):
     return f"xterm -hold -e 'whatweb -a 4 http://{hostname}:{port} 2> /dev/null| tee whatweb_{hostname}_{port}'"
@@ -203,17 +149,6 @@ def get_open_http_ports_from_nmap_output(nmap_output_file):
         print(f"Se produjo un error al leer {nmap_output_file}: {e}")
         return []
 
-def _usage():
-    print("Usage:")
-    print("  scanthebox.py new <hostname>  - Run scans on a new host")
-    print("  scanthebox.py load <hostname> - Load and process existing scan data")
-    sys.exit(0)
-
-def _parseYaml(config_file):
-    with open(config_file, 'r') as file:
-        config = yaml.safe_load(file)
-    return config
-
 def main():
 
     parser = argparse.ArgumentParser(description="Process hostname input and perform nmap scans.")
@@ -231,11 +166,11 @@ def main():
 
     if args.command == 'new':
         hostname = args.hostname
-        print(f"Starting new scan for {hostname}")
+        success(f"Starting new scan for {hostname}")
         # Aquí va la lógica para escanear el nuevo hostname
     elif args.command == 'load':
         hostname = args.hostname
-        print("loading...")
+        success("loading...")
         # Aquí va la lógica para cargar un escaneo existente
     else:
         usage()
@@ -244,7 +179,7 @@ def main():
     # Check for required tools
     check_tools()
 
-    print("Hostname:", hostname)
+    info(f"Hostname: {hostname}")
 
     # Check if the hostname is responsive
     check_hostname_responsive(hostname)
@@ -253,14 +188,14 @@ def main():
     if not os.path.exists(hostname):
         os.makedirs(hostname)
     os.chdir(hostname)
-    print(f"Created and changed working directory to: {hostname}")
+    info(f"Created and changed working directory to: {hostname}")
 
     # Call create_structure() to create additional folders inside the working directory
     create_structure()
 
     config_file = "scanthebox.yaml"
     config_path = os.path.join(os.path.dirname(__file__), config_file)
-    config = parseYaml(config_path)
+    config = parse_yaml(config_path)
     n = Nmap(config)
     n.scan_common_tcp_ports(hostname)
     open_ports = n.get_common_tcp_ports()
