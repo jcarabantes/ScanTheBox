@@ -6,26 +6,25 @@ import time
 import requests
 import yaml
 from modules.nmap_class import Nmap
-
+from modules.utils import check_tools, create_structure, usage, parseYaml
 
 
 # Todo
 # workspaces creation
-# move functions to a helper
 # interactive mode to load workspace and execute specific tasks
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
 # fingerprint nmap
 # 445: enum4linux -a solarlab.htb
 
-def create_structure():
+def _create_structure():
     folders = ['files', 'gobuster', 'nmap', 'wordlists']
     for folder in folders:
         if not os.path.exists(folder):
             os.makedirs(folder)
     print(f"Created subdirectories: {', '.join(folders)}")
 
-def check_tools():
+def _check_tools():
     required_tools = ['nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker']
     missing_tools = []
     
@@ -40,7 +39,7 @@ def check_tools():
     else:
         print("All required tools are installed.")
 
-def check_hostname_responsive(hostname):
+def _check_hostname_responsive(hostname):
     print(f"Checking if hostname {hostname} is responsive")
     response = subprocess.run(['ping', '-c', '1', hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if response.returncode != 0:
@@ -204,13 +203,13 @@ def get_open_http_ports_from_nmap_output(nmap_output_file):
         print(f"Se produjo un error al leer {nmap_output_file}: {e}")
         return []
 
-def usage():
+def _usage():
     print("Usage:")
     print("  scanthebox.py new <hostname>  - Run scans on a new host")
     print("  scanthebox.py load <hostname> - Load and process existing scan data")
     sys.exit(0)
 
-def parseYaml(config_file):
+def _parseYaml(config_file):
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
     return config
