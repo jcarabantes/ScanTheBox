@@ -14,7 +14,6 @@ def parse_yaml(config_file):
         config = yaml.safe_load(file)
     return config
 
-
 def check_tools():
     required_tools = ['nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker']
     missing_tools = []
@@ -34,15 +33,15 @@ def check_hostname_responsive(hostname):
     info(f"Checking if hostname {hostname} is responsive")
     response = subprocess.run(['ping', '-c', '1', hostname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if response.returncode != 0:
-        print(f"Hostname {hostname} is not responsive. Please check the hostname and try again.")
+        error(f"Hostname {hostname} is not responsive. Please check the hostname and try again.")
         exit(1)
     else:
-        print(f"Hostname {hostname} is responsive")
+        success(f"Hostname {hostname} is responsive")
 
 def create_structure():
     folders = ['files', 'gobuster', 'nmap', 'wordlists']
     for folder in folders:
         if not os.path.exists(folder):
             os.makedirs(folder)
-    print(f"Created subdirectories: {', '.join(folders)}")
+    success(f"Created subdirectories: {', '.join(folders)}")
 

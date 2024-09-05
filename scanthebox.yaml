@@ -1,2 +1,2 @@
 # scanthebox.yaml content
-nmap_output_dir: "nmap/common-tcp-ports"
+nmap_output_file: "nmap/common-tcp-ports.nmap"

@@ -133,22 +133,6 @@ def get_ip_from_etc_hosts(hostname):
         print(f"An error occurred while reading /etc/hosts: {e}")
         return None
 
-def get_open_http_ports_from_nmap_output(nmap_output_file):
-    http_ports = []
-    try:
-        with open(nmap_output_file, 'r') as file:
-            for line in file:
-                if 'http' in line.lower() and 'open' in line.lower():
-                    port = line.split('/')[0].strip()
-                    http_ports.append(port)
-        return http_ports
-    except FileNotFoundError:
-        print(f"El archivo {nmap_output_file} no se encontró.")
-        return []
-    except Exception as e:
-        print(f"Se produjo un error al leer {nmap_output_file}: {e}")
-        return []
-
 def main():
 
     parser = argparse.ArgumentParser(description="Process hostname input and perform nmap scans.")
@@ -166,11 +150,11 @@ def main():
 
     if args.command == 'new':
         hostname = args.hostname
-        success(f"Starting new scan for {hostname}")
+        info(f"Starting new scan for {hostname}")
         # Aquí va la lógica para escanear el nuevo hostname
     elif args.command == 'load':
         hostname = args.hostname
-        success("loading...")
+        info("loading...")
         # Aquí va la lógica para cargar un escaneo existente
     else:
         usage()
@@ -200,13 +184,12 @@ def main():
     n.scan_common_tcp_ports(hostname)
     open_ports = n.get_common_tcp_ports()
 
-    sys.exit(0)
+    time.sleep(2)
 
-    # Perform initial nmap scan to find all TCP ports
-    open_ports = nmap_common_tcp_ports(hostname)
-    time.sleep(10)
-    COMMON_PORTS_OUTPUT = "nmap/common-tcp-ports.nmap"
-    http_port_list = get_open_http_ports_from_nmap_output( COMMON_PORTS_OUTPUT )
+    http_port_list = n.get_open_http()
+    print("http ports")
+    print(http_port_list)
+    sys.exit(1)
 
     if http_port_list:
         spawn_http_tools(hostname, http_port_list)

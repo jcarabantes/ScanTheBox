@@ -3,7 +3,7 @@ from termcolor import colored,cprint
 def info(message):
     COLOR = "blue"
     start = colored(f'(INFO)\t', COLOR, attrs=['bold'])
-    msg = colored(f'{message}', COLOR)
+    msg = colored(f'{message}')
     print(start + ' ' + msg)
 
 def success(message):
