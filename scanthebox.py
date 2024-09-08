@@ -153,14 +153,13 @@ def main():
 
     args = parser.parse_args()
 
-
     # Check for required tools
     # check_tools()
     hostname = args.hostname
     info(f"Hostname: {hostname}")
 
     config_file = "scanthebox.yaml"
-    c = Config(config_file, hostname)
+    cfg = Config(config_file, hostname)
 
     if args.command == 'new':
         info(f"Starting new scan for {hostname}")
@@ -176,26 +175,29 @@ def main():
         # Call create_structure() to create additional folders inside the working directory
         create_structure()
 
+        nmap = Nmap(cfg)
+        nmap.scan_common_tcp_ports(hostname)
+        open_ports = nmap.get_common_tcp_ports()
+
+        time.sleep(2)
+
+        http_port_list = nmap.get_open_http()
+        print("http ports")
+        print(http_port_list)
+        sys.exit(1)
+
 
     elif args.command == 'load':
         info(f"Loading scan for {hostname}. Entering interactive shell...")
         
-        shell = ScanShell(hostname, config)
+        shell = ScanShell(hostname, cfg)
         shell.cmdloop()
+        sys.exit(0)
     else:
         usage()
 
     
-    n = Nmap(c)
-    n.scan_common_tcp_ports(hostname)
-    open_ports = n.get_common_tcp_ports()
 
-    time.sleep(2)
-
-    http_port_list = n.get_open_http()
-    print("http ports")
-    print(http_port_list)
-    sys.exit(1)
 
     # new HTTP(http_port_list)
 

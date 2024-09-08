@@ -22,14 +22,14 @@ class ScanShell(cmd.Cmd):
         """Run an nmap scan on the hostname"""
         # print(f"Running nmap scan on {self.hostname}...")
         # os.system(f"nmap -sC -sV {self.hostname}")
-        n = Nmap(self.config)
-        print(self.config)
-        n.scan_common_tcp_ports(self.hostname)
-        open_ports = n.get_common_tcp_ports()
+        nmap = Nmap(self.config)
+        nmap.scan_common_tcp_ports(self.hostname)
+        open_ports = nmap.get_common_tcp_ports()
 
-        http_port_list = n.get_open_http()
+        http_port_list = nmap.get_open_http()
         print("http ports")
         print(http_port_list)
+
 
     # Comando para salir de la shell
     def do_exit(self, arg):

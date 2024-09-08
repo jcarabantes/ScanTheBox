@@ -3,6 +3,7 @@ import os
 import yaml
 
 class Config:
+
     def __init__(self, config_file, hostname):
         # Define the configuration file path and root directory
         self.root_directory = os.path.dirname(__file__) + "/../"
@@ -16,6 +17,9 @@ class Config:
 
     def get_config_path(self):
         return self.config_path
+
+    def get_workspace(self):
+        return self.workspace
 
     def parse_yaml(self, config_path):
         # Load and parse the YAML file
