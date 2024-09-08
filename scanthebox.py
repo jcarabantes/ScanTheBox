@@ -14,7 +14,6 @@ from modules.loader_prompt import ScanShell
 
 # Todo
 # remove pycache from the repository + gitignore it
-# Create a Config class with the root_directory, the parsed yaml, etc.
 # Create the HTTP module
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
@@ -195,8 +194,7 @@ def main():
         sys.exit(0)
     else:
         usage()
-
-    
+  
 
 
     # new HTTP(http_port_list)
