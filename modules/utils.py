@@ -1,7 +1,24 @@
 import subprocess
 import os
 import yaml
+import sys
 from modules.output import success, error, info
+
+
+def check_required_modules():
+    required_modules = ['argparse', 'os', 'yaml', 'termcolor', 'cmd']
+    missing_modules = []
+    for module in required_modules:
+        try:
+            __import__(module)
+        except ImportError:
+            missing_modules.append(module)
+
+    if missing_modules:
+        error(f"Error: The following modules are not installed: {', '.join(missing_modules)}")
+        error("Install them by running: pip install <module>")
+        sys.exit(1)
+
 
 def usage():
     print("Usage:")

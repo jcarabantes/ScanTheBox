@@ -6,13 +6,13 @@ import time
 import requests
 import yaml
 from modules.nmap_class import Nmap
-from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml
+from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml, check_required_modules
 from modules.output import success, error, info
 from modules.loader_prompt import ScanShell
 
 
 # Todo
-# implement modules_checker.py
+# Create a Config class with the root_directory, the parsed yaml, ec.
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
 # fingerprint nmap
@@ -152,6 +152,7 @@ def main():
 
     config_file = "scanthebox.yaml"
     config_path = os.path.join(os.path.dirname(__file__), config_file)
+    root_directory = os.path.dirname(__file__)
     config = parse_yaml(config_path)
 
     # Check for required tools
@@ -177,7 +178,7 @@ def main():
     elif args.command == 'load':
         info(f"Loading scan for {hostname}. Entering interactive shell...")
         
-        shell = ScanShell(hostname)
+        shell = ScanShell(hostname, config)
         shell.cmdloop()
     else:
         usage()
@@ -194,6 +195,8 @@ def main():
     print(http_port_list)
     sys.exit(1)
 
+    # new HTTP(http_port_list)
+
     if http_port_list:
         spawn_http_tools(hostname, http_port_list)
 
@@ -205,4 +208,5 @@ def main():
     #     nmap_fingerprint(hostname, open_ports)
 
 if __name__ == "__main__":
+    check_required_modules()
     main()
