@@ -8,15 +8,17 @@ import yaml
 from modules.nmap_class import Nmap
 from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml
 from modules.output import success, error, info
+from modules.loader_prompt import ScanShell
 
 
 # Todo
-# workspaces creation
-# interactive mode to load workspace and execute specific tasks
+# implement modules_checker.py
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
 # fingerprint nmap
 # 445: enum4linux -a solarlab.htb
+# improve de load module
+    # on load, check if workspace already existss
 
 def nmap_all_ports(hostname):
     print(f"Scanning all TCP ports")
@@ -138,48 +140,49 @@ def main():
     parser = argparse.ArgumentParser(description="Process hostname input and perform nmap scans.")
     subparsers = parser.add_subparsers(dest='command', help='sub-command help')
 
-    # Subcomando "new"
+    # Options to create a new scan
     parser_new = subparsers.add_parser('new', help='Start a new scan on the specified hostname')
     parser_new.add_argument('hostname', help='The hostname to process')
 
-    # Subcomando "load"
+    # Options to load an existing hostname
     parser_load = subparsers.add_parser('load', help='Load an existing scan for the specified hostname')
     parser_load.add_argument('hostname', help='The hostname to load')
 
     args = parser.parse_args()
 
+    config_file = "scanthebox.yaml"
+    config_path = os.path.join(os.path.dirname(__file__), config_file)
+    config = parse_yaml(config_path)
+
+    # Check for required tools
+    # check_tools()
+    hostname = args.hostname
+    info(f"Hostname: {hostname}")
+
     if args.command == 'new':
-        hostname = args.hostname
         info(f"Starting new scan for {hostname}")
-        # Aquí va la lógica para escanear el nuevo hostname
+        # Check if the hostname is responsive
+        check_hostname_responsive(hostname)
+
+        # Create a directory with the hostname and set it as the working directory
+        if not os.path.exists(hostname):
+            os.makedirs(hostname)
+        os.chdir(hostname)
+        info(f"Created and changed working directory to: {hostname}")
+
+        # Call create_structure() to create additional folders inside the working directory
+        create_structure()
+
+
     elif args.command == 'load':
-        hostname = args.hostname
-        info("loading...")
-        # Aquí va la lógica para cargar un escaneo existente
+        info(f"Loading scan for {hostname}. Entering interactive shell...")
+        
+        shell = ScanShell(hostname)
+        shell.cmdloop()
     else:
         usage()
 
 
-    # Check for required tools
-    check_tools()
-
-    info(f"Hostname: {hostname}")
-
-    # Check if the hostname is responsive
-    check_hostname_responsive(hostname)
-
-    # Create a directory with the hostname and set it as the working directory
-    if not os.path.exists(hostname):
-        os.makedirs(hostname)
-    os.chdir(hostname)
-    info(f"Created and changed working directory to: {hostname}")
-
-    # Call create_structure() to create additional folders inside the working directory
-    create_structure()
-
-    config_file = "scanthebox.yaml"
-    config_path = os.path.join(os.path.dirname(__file__), config_file)
-    config = parse_yaml(config_path)
     n = Nmap(config)
     n.scan_common_tcp_ports(hostname)
     open_ports = n.get_common_tcp_ports()
