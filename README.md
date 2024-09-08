@@ -74,6 +74,13 @@ This will enter an interactive shell where you can continue working with the res
    python scanthebox.py load target.htb
    ```
 
+## Todo
+[] Create the HTTP module
+[] Extract HTTP and DNS from `nmap_fingerprint`, that should be independent and should work from the output
+[] Save DNS output
+[] Add enum4linux command for port 445: `enum4linux -a solarlab.htb`
+[] load mode: check if workspace already exists
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

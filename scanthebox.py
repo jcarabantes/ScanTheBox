@@ -16,10 +16,9 @@ from modules.loader_prompt import ScanShell
 # Create the HTTP module
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
-# fingerprint nmap
 # 445: enum4linux -a solarlab.htb
 # improve de load module
-    # on load, check if workspace already existss
+    # on load, check if workspace already exists
 
 def nmap_all_ports(hostname):
     print(f"Scanning all TCP ports")
