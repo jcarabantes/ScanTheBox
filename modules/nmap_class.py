@@ -58,7 +58,7 @@ class Nmap:
         info(f"Starting nmap scan for detailed fingerprinting on open ports: {', '.join(ports)}")
         port = ','.join(ports)
         output_file_base = os.path.join('nmap', "/tmp/test.txt")
-        result = subprocess.run(['nmap', '-T4', '-sC', '-sV', f'-p{port}', self.hostname, '-oA', output_file_base], capture_output=True, text=True)
+        result = subprocess.run(['nmap', '-Pn', '-T4', '-sC', '-sV', f'-p{port}', self.hostname, '-oA', output_file_base], capture_output=True, text=True)
         info(f"Nmap Scan Results for port {port}:")
         print(result.stdout)
         if result.stderr:
