@@ -1,2 +1,3 @@
 # scanthebox.yaml content
 nmap_output_file: "nmap/common-tcp-ports.nmap"
+nmap_fingerprint_output: "nmap/common-fingerprint.nmap"

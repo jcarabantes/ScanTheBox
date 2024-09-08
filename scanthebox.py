@@ -13,7 +13,6 @@ from modules.loader_prompt import ScanShell
 
 
 # Todo
-# remove pycache from the repository + gitignore it
 # Create the HTTP module
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
@@ -26,35 +25,6 @@ def nmap_all_ports(hostname):
     print(f"Scanning all TCP ports")
     nmap_command = f"xterm -hold -e 'nmap -p- -T4 -Pn {hostname} -oA nmap/all-ports'"
     subprocess.Popen(nmap_command, shell=True)
-
-def nmap_fingerprint(hostname, ports):
-    print(f"Starting nmap scan for detailed fingerprinting on open ports: {', '.join(ports)}")
-    port = ','.join(ports)
-    output_file_base = os.path.join('nmap', f"{hostname}-ports-fingerprint")
-    result = subprocess.run(['nmap', '-T4', '-sC', '-sV', f'-p{port}', hostname, '-oA', output_file_base], capture_output=True, text=True)
-    print(f"Nmap Scan Results for port {port}:")
-    print(result.stdout)
-    if result.stderr:
-        print("Errors:", result.stderr)
-
-    # Identify HTTP and DNS services and create respective lists of ports
-    http_ports = []
-    dns_ports = []
-    for line in result.stdout.splitlines():
-        if 'http' in line.lower() and "open" in line.lower():
-            port = line.split('/')[0].strip()
-            http_ports.append(port)
-        if 'domain' in line.lower() and "open" in line.lower():
-            port = line.split('/')[0].strip()
-            dns_ports.append(port)
-
-    # If there are HTTP ports, spawn xterm windows for whatweb and gobuster
-    if http_ports:
-        spawn_http_tools(hostname, http_ports)
-    
-    # If there are DNS ports, call DNS fingerprinting functions
-    if dns_ports:
-        dns_query(hostname)
 
 def get_whatweb_command(hostname, port):
     return f"xterm -hold -e 'whatweb -a 4 http://{hostname}:{port} 2> /dev/null| tee whatweb_{hostname}_{port}'"
@@ -161,16 +131,21 @@ def main():
     cfg = Config(config_file, hostname)
 
     if args.command == 'new':
-        info(f"Starting new scan for {hostname}")
-        # Check if the hostname is responsive
-        check_hostname_responsive(hostname)
 
         # Create a directory with the hostname and set it as the working directory
-        if not os.path.exists(hostname):
+        if os.path.exists(hostname):
+            error(f"Error, {hostname} has been already scanned.")
+            sys.exit(0)
+        else:
             os.makedirs(hostname)
         os.chdir(hostname)
+
+        info(f"Starting new scan for {hostname}")
+
         info(f"Created and changed working directory to: {hostname}")
 
+        # Check if the hostname is responsive
+        check_hostname_responsive(hostname)
         # Call create_structure() to create additional folders inside the working directory
         create_structure()
 
@@ -178,17 +153,23 @@ def main():
         nmap.scan_common_tcp_ports(hostname)
         open_ports = nmap.get_common_tcp_ports()
 
-        time.sleep(2)
+        # lets execute -sC and -sV on each common port
+        nmap.fingerprint(open_ports)
 
         http_port_list = nmap.get_open_http()
-        print("http ports")
-        print(http_port_list)
+        
+        # if http_port_list:
+
+        #     http = Http(http_port_list)
+        #     http.spawn_tools(hostname, http_port_list)
+
         sys.exit(1)
 
 
     elif args.command == 'load':
+        info(f"Changed working directory to: {hostname}")
         info(f"Loading scan for {hostname}. Entering interactive shell...")
-        
+        os.chdir(hostname)
         shell = ScanShell(hostname, cfg)
         shell.cmdloop()
         sys.exit(0)
@@ -197,7 +178,6 @@ def main():
   
 
 
-    # new HTTP(http_port_list)
 
     if http_port_list:
         spawn_http_tools(hostname, http_port_list)

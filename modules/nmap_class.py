@@ -1,7 +1,9 @@
 import os
 import subprocess
+from modules.output import success, error, info
 
 class Nmap:
+
     def __init__(self, config_cls):
         
         self.config = config_cls.get_yaml_content()
@@ -51,3 +53,32 @@ class Nmap:
         except Exception as e:
             print(f"Se produjo un error al leer {self.output_fullpath}: {e}")
             return []
+
+    def fingerprint(self, ports):
+        info(f"Starting nmap scan for detailed fingerprinting on open ports: {', '.join(ports)}")
+        port = ','.join(ports)
+        output_file_base = os.path.join('nmap', "/tmp/test.txt")
+        result = subprocess.run(['nmap', '-T4', '-sC', '-sV', f'-p{port}', self.hostname, '-oA', output_file_base], capture_output=True, text=True)
+        info(f"Nmap Scan Results for port {port}:")
+        print(result.stdout)
+        if result.stderr:
+            print("Errors:", result.stderr)
+
+        # Identify HTTP and DNS services and create respective lists of ports
+        # http_ports = []
+        # dns_ports = []
+        # for line in result.stdout.splitlines():
+        #     if 'http' in line.lower() and "open" in line.lower():
+        #         port = line.split('/')[0].strip()
+        #         http_ports.append(port)
+        #     if 'domain' in line.lower() and "open" in line.lower():
+        #         port = line.split('/')[0].strip()
+        #         dns_ports.append(port)
+
+        # If there are HTTP ports, spawn xterm windows for whatweb and gobuster
+        # if http_ports:
+        #     spawn_http_tools(hostname, http_ports)
+        
+        # If there are DNS ports, call DNS fingerprinting functions
+        # if dns_ports:
+        #     dns_query(hostname)
