@@ -3,7 +3,9 @@ import subprocess
 
 class Nmap:
     def __init__(self, config):
-        self.output_fullpath = os.path.join(config['nmap_output_file'])
+        # self.output_fullpath = os.path.join(config['nmap_output_file'])
+        self.config = config.get_yaml_content()
+        self.output_fullpath = os.path.join(self.config['nmap_output_file'])
         self.hostname = None
         self.last_scan_result = None
 

@@ -6,13 +6,16 @@ import time
 import requests
 import yaml
 from modules.nmap_class import Nmap
+from modules.config_class import Config
 from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml, check_required_modules
 from modules.output import success, error, info
 from modules.loader_prompt import ScanShell
 
 
 # Todo
-# Create a Config class with the root_directory, the parsed yaml, ec.
+# remove pycache from the repository + gitignore it
+# Create a Config class with the root_directory, the parsed yaml, etc.
+# Create the HTTP module
 # extract http and dns from nmap_fingerprint, that should be independent and should work from the output
 # save DNS ouput
 # fingerprint nmap
@@ -150,15 +153,14 @@ def main():
 
     args = parser.parse_args()
 
-    config_file = "scanthebox.yaml"
-    config_path = os.path.join(os.path.dirname(__file__), config_file)
-    root_directory = os.path.dirname(__file__)
-    config = parse_yaml(config_path)
 
     # Check for required tools
     # check_tools()
     hostname = args.hostname
     info(f"Hostname: {hostname}")
+
+    config_file = "scanthebox.yaml"
+    c = Config(config_file, hostname)
 
     if args.command == 'new':
         info(f"Starting new scan for {hostname}")
@@ -183,8 +185,8 @@ def main():
     else:
         usage()
 
-
-    n = Nmap(config)
+    
+    n = Nmap(c)
     n.scan_common_tcp_ports(hostname)
     open_ports = n.get_common_tcp_ports()
 
