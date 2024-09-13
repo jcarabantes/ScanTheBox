@@ -11,15 +11,6 @@ from modules.utils import check_tools, check_hostname_responsive, create_structu
 from modules.output import success, error, info
 from modules.loader_prompt import ScanShell
 
-
-# Todo
-# Create the HTTP module
-# extract http and dns from nmap_fingerprint, that should be independent and should work from the output
-# save DNS ouput
-# 445: enum4linux -a solarlab.htb
-# improve de load module
-    # on load, check if workspace already exists
-
 def nmap_all_ports(hostname):
     print(f"Scanning all TCP ports")
     nmap_command = f"xterm -hold -e 'nmap -p- -T4 -Pn {hostname} -oA nmap/all-ports'"
@@ -27,10 +18,6 @@ def nmap_all_ports(hostname):
 
 def get_whatweb_command(hostname, port):
     return f"xterm -hold -e 'whatweb -a 4 http://{hostname}:{port} 2> /dev/null| tee whatweb_{hostname}_{port}'"
-
-def _get_gobuster_command(hostname, port, wordlist):
-    basename = wordlist.split("/")[-1:][0]
-    return f"xterm -hold -e 'gobuster -u http://{hostname}:{port} -w {wordlist} -o gobuster/gobuster_{basename}_{hostname}_{port}'"
 
 def get_vhost_wfuzz_command(hostname, port, wordlist):
     # We first need to know what's the content-length when 
