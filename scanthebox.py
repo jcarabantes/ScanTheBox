@@ -6,6 +6,7 @@ import time
 import requests
 import yaml
 from modules.nmap_class import Nmap
+from modules.http_class import Http
 from modules.config_class import Config
 from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml, check_required_modules
 from modules.output import success, error, info
@@ -54,7 +55,7 @@ def get_nuclei_command(hostname, port):
 def get_nikto_command(hostname, port):
     return f"xterm -hold -e 'nikto -host http://{hostname}:{port} | tee nikto_{hostname}_{port}'"
 
-def spawn_http_tools(hostname, ports):
+def _spawn_http_tools(hostname, ports):
     for port in ports:
         print(f"HTTP service detected on port {port}, spawning xterm windows for whatweb and gobuster")
         whatweb_command = get_whatweb_command(hostname, port)
@@ -140,7 +141,6 @@ def main():
         os.chdir(hostname)
 
         info(f"Starting new scan for {hostname}")
-
         info(f"Created and changed working directory to: {hostname}")
 
         # Check if the hostname is responsive
@@ -149,7 +149,8 @@ def main():
         create_structure()
 
         nmap = Nmap(cfg)
-        nmap.scan_common_tcp_ports(hostname)
+        nmap.set_hostname(hostname)
+        nmap.scan_common_tcp_ports()
         open_ports = nmap.get_common_tcp_ports()
 
         # lets execute -sC and -sV on each common port
@@ -157,10 +158,10 @@ def main():
 
         http_port_list = nmap.get_open_http()
         
-        # if http_port_list:
-
-        #     http = Http(http_port_list)
-        #     http.spawn_tools(hostname, http_port_list)
+        if http_port_list:
+            http = Http(http_port_list)
+            http.set_hostname(hostname)
+            http.spawn_tools(http_port_list)
 
         sys.exit(1)
 
