@@ -8,15 +8,17 @@ class Nmap:
         
         self.config = config_cls.get_yaml_content()
         self.workspace = config_cls.get_workspace()
-        self.output_fullpath = os.path.join(self.workspace, self.config['nmap_output_file'])
+        self.output_fullpath = os.path.join(self.workspace, self.config['nmap_common_output'])
         self.hostname = None
         self.last_scan_result = None
 
-    def scan_common_tcp_ports(self, hostname):
+    def set_hostname(self, hostname):
         self.hostname = hostname
-        print(f"Starting nmap scan for common TCP ports on {hostname}")
-        print(['nmap', '-Pn', hostname, '-oN', self.output_fullpath])
-        result = subprocess.run(['nmap', '-Pn', hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
+
+    def scan_common_tcp_ports(self):
+        print(f"Starting nmap scan for common TCP ports on {self.hostname}")
+        print(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath])
+        result = subprocess.run(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
 
         print("Nmap Scan Results for common TCP ports:")
         print(result.stdout)

@@ -1,3 +1,6 @@
+import subprocess
+from modules.output import success, error, info
+
 class Http:
 
     def __init__(self, http_port_list, config_cls):
@@ -12,29 +15,35 @@ class Http:
     def set_hostname(self, hostname):
         self.hostname = hostname
 
-    def spawn_tools(self, ports):
-        for port in ports:
-            print(f"HTTP service detected on port {port}, spawning xterm windows for whatweb and gobuster")
-            whatweb_command = get_whatweb_command(hostname, port)
-            
-            gobuster_command_common = get_gobuster_command(hostname, port, "/usr/share/dirb/wordlists/common.txt")
-            gobuster_command_files = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-files.txt")
-            gobuster_command_directories = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-directories.txt")
-            
-            vhost_bruteforce_command = get_vhost_wfuzz_command(hostname, port, "/home/remnux/SecLists/Discovery/DNS/namelist.txt")
-            nuclei_command = get_nuclei_command(hostname, port)
-            nikto_command = get_nikto_command(hostname, port)
+    def get_gobuster_command(self, port, wordlist):
+        basename = wordlist.split("/")[-1:][0]
+        info(f"xterm -hold -e 'gobuster dir -u http://{self.hostname}:{port} -w {wordlist} -o gobuster/gobuster_{basename}_{self.hostname}_{port}'")
+        return f"xterm -hold -e 'gobuster dir -u http://{self.hostname}:{port} -w {wordlist} -o gobuster/gobuster_{basename}_{self.hostname}_{port}'"
 
 
-            subprocess.Popen(whatweb_command, shell=True)
-            subprocess.Popen(gobuster_command_common, shell=True)
-            subprocess.Popen(gobuster_command_files, shell=True)
-            subprocess.Popen(gobuster_command_directories, shell=True)
-            if vhost_bruteforce_command:
-                subprocess.Popen(vhost_bruteforce_command, shell=True)
+    def spawn_tools(self):
+        for port in self.http_port_list:
+            info(f"HTTP service detected on port {port}, spawning xterm windows for whatweb and gobuster")
+            # whatweb_command = get_whatweb_command(hostname, port)
             
-            # when using docker, we need to use os.system(): https://stackoverflow.com/questions/59507395/how-do-i-use-python-to-launch-an-interactive-docker-container
-            os.system(nuclei_command)
+            gobuster_common = self.get_gobuster_command(port, self.config['wordlists']['common'])
+            # gobuster_command_files = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-files.txt")
+            # gobuster_command_directories = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-directories.txt")
+            
+            # vhost_bruteforce_command = get_vhost_wfuzz_command(hostname, port, "/home/remnux/SecLists/Discovery/DNS/namelist.txt")
+            # nuclei_command = get_nuclei_command(hostname, port)
+            # nikto_command = get_nikto_command(hostname, port)
 
-            subprocess.Popen(nikto_command, shell=True)
+
+            # subprocess.Popen(whatweb_command, shell=True)
+            subprocess.Popen(gobuster_common, shell=True)
+            # subprocess.Popen(gobuster_command_files, shell=True)
+            # subprocess.Popen(gobuster_command_directories, shell=True)
+            # if vhost_bruteforce_command:
+            #     subprocess.Popen(vhost_bruteforce_command, shell=True)
+            
+            # # when using docker, we need to use os.system(): https://stackoverflow.com/questions/59507395/how-do-i-use-python-to-launch-an-interactive-docker-container
+            # os.system(nuclei_command)
+
+            # subprocess.Popen(nikto_command, shell=True)
 

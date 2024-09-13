@@ -1,6 +1,5 @@
 import argparse
 import os
-import subprocess
 import sys
 import time
 import requests
@@ -29,7 +28,7 @@ def nmap_all_ports(hostname):
 def get_whatweb_command(hostname, port):
     return f"xterm -hold -e 'whatweb -a 4 http://{hostname}:{port} 2> /dev/null| tee whatweb_{hostname}_{port}'"
 
-def get_gobuster_command(hostname, port, wordlist):
+def _get_gobuster_command(hostname, port, wordlist):
     basename = wordlist.split("/")[-1:][0]
     return f"xterm -hold -e 'gobuster -u http://{hostname}:{port} -w {wordlist} -o gobuster/gobuster_{basename}_{hostname}_{port}'"
 
@@ -123,7 +122,7 @@ def main():
     args = parser.parse_args()
 
     # Check for required tools
-    # check_tools()
+    check_tools()
     hostname = args.hostname
     info(f"Hostname: {hostname}")
 
@@ -159,9 +158,9 @@ def main():
         http_port_list = nmap.get_open_http()
         
         if http_port_list:
-            http = Http(http_port_list)
+            http = Http(http_port_list, cfg)
             http.set_hostname(hostname)
-            http.spawn_tools(http_port_list)
+            http.spawn_tools()
 
         sys.exit(1)
 
