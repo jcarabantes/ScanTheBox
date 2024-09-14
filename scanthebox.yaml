@@ -3,5 +3,5 @@ nmap_fingerprint_output: "nmap/common-fingerprint.nmap"
 
 wordlists:
   common: "/usr/share/dirb/wordlists/common.txt"
-  files: "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-files.txt"
-  directories: "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-directories.txt"
+  files: "/usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt"
+  directories: "/usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt"

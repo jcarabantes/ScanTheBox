@@ -27,8 +27,8 @@ class Http:
             # whatweb_command = get_whatweb_command(hostname, port)
             
             gobuster_common = self.get_gobuster_command(port, self.config['wordlists']['common'])
-            # gobuster_command_files = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-files.txt")
-            # gobuster_command_directories = get_gobuster_command(hostname, port, "/home/remnux/SecLists/Discovery/Web-Content/raft-medium-directories.txt")
+            gobuster_files = self.get_gobuster_command(port, self.config['wordlists']['files'])
+            gobuster_directories = self.get_gobuster_command(port, self.config['wordlists']['directories'])
             
             # vhost_bruteforce_command = get_vhost_wfuzz_command(hostname, port, "/home/remnux/SecLists/Discovery/DNS/namelist.txt")
             # nuclei_command = get_nuclei_command(hostname, port)
@@ -37,8 +37,8 @@ class Http:
 
             # subprocess.Popen(whatweb_command, shell=True)
             subprocess.Popen(gobuster_common, shell=True)
-            # subprocess.Popen(gobuster_command_files, shell=True)
-            # subprocess.Popen(gobuster_command_directories, shell=True)
+            subprocess.Popen(gobuster_files, shell=True)
+            subprocess.Popen(gobuster_directories, shell=True)
             # if vhost_bruteforce_command:
             #     subprocess.Popen(vhost_bruteforce_command, shell=True)
             
