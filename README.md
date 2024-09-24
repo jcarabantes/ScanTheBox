@@ -75,11 +75,11 @@ This will enter an interactive shell where you can continue working with the res
    ```
 
 ## Todo
-[ ] Migrate all method to the Http class
-[ ] Extract HTTP and DNS from `nmap_fingerprint`, that should be independent and should work from the output
-[ ] Save DNS output
-[ ] Add enum4linux command for port 445: `enum4linux -a solarlab.htb`
-[ ] load mode: check if workspace already exists
+* Migrate all method to the Http class
+* Extract HTTP and DNS from `nmap_fingerprint`, that should be independent and should work from the output
+* Save DNS output
+* Add enum4linux command for port 445: `enum4linux -a solarlab.htb`
+* load mode: check if workspace already exists
 
 ## License
 

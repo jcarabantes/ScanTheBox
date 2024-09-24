@@ -17,7 +17,7 @@ class Nmap:
 
     def scan_common_tcp_ports(self):
         print(f"Starting nmap scan for common TCP ports on {self.hostname}")
-        print(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath])
+        # print(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath])
         result = subprocess.run(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
 
         print("Nmap Scan Results for common TCP ports:")

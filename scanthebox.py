@@ -3,7 +3,7 @@ import os
 import sys
 import time
 import requests
-import yaml
+# import yaml
 from modules.nmap_class import Nmap
 from modules.http_class import Http
 from modules.config_class import Config

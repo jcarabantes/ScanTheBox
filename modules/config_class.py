@@ -11,6 +11,19 @@ class Config:
         self.workspace = self.root_directory + hostname + "/"
         # Parse the YAML configuration file
         self.config = self.parse_yaml(self.config_path)
+        self._check_wordlists()
+
+    def _check_wordlists(self):
+        """
+        Private method to check if the wordlist files exist.
+        If a wordlist file is missing, raise an error and stop execution.
+        """
+        wordlists = self.config.get('wordlists', {})
+        
+        for key, path in wordlists.items():
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"Wordlist '{key}' not found at {path}")
+
 
     def get_yaml_content(self):
         return self.config
