@@ -15,12 +15,10 @@ class Nmap:
     def set_hostname(self, hostname):
         self.hostname = hostname
 
-    def scan_common_tcp_ports(self):
-        print(f"Starting nmap scan for common TCP ports on {self.hostname}")
+    def scan_all_tcp_ports(self):
+        info(f"Starting nmap scan for all TCP ports on {self.hostname}")
         # print(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath])
-        result = subprocess.run(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
-
-        print("Nmap Scan Results for common TCP ports:")
+        result = subprocess.run(['nmap', '-Pn', '-p-', '-T4', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
         print(result.stdout)
         if result.stderr:
             print("Errors:", result.stderr)
@@ -28,8 +26,8 @@ class Nmap:
         # Save the result to a file for further analysis
         self.last_scan_result = result.stdout
     
-    def get_common_tcp_ports(self):
-        print("Extracting common ports from the scan results")
+    def get_tcp_ports(self):
+        print("Extracting all tcp ports from the scan results")
         return self._extract_tcp_ports(self.last_scan_result)
 
     def _extract_tcp_ports(self, nmap_output):

@@ -110,8 +110,8 @@ def main():
 
         nmap = Nmap(cfg)
         nmap.set_hostname(hostname)
-        nmap.scan_common_tcp_ports()
-        open_ports = nmap.get_common_tcp_ports()
+        nmap.scan_all_tcp_ports()
+        open_ports = nmap.get_tcp_ports()
 
         # lets execute -sC and -sV on each common port
         nmap.fingerprint(open_ports)

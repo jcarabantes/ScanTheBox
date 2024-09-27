@@ -5,3 +5,4 @@ wordlists:
   common: "/usr/share/dirb/wordlists/common.txt"
   files: "/usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt"
   directories: "/usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt"
+  vhost01: "/usr/share/seclists/Discovery/DNS/namelist.txt"
