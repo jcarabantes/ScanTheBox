@@ -32,7 +32,7 @@ def parse_yaml(config_file):
     return config
 
 def check_tools():
-    required_tools = ['xterm', 'nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker']
+    required_tools = ['xterm', 'nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker', 'nxc']
     missing_tools = []
     
     for tool in required_tools:

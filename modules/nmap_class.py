@@ -18,7 +18,7 @@ class Nmap:
     def scan_all_tcp_ports(self):
         info(f"Starting nmap scan for all TCP ports on {self.hostname}")
         # print(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath])
-        result = subprocess.run(['nmap', '-Pn', '-p-', '-T4', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
+        result = subprocess.run(['nmap', '-Pn', '-p445', '-T4', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
         print(result.stdout)
         if result.stderr:
             print("Errors:", result.stderr)
@@ -47,6 +47,22 @@ class Nmap:
                         port = line.split('/')[0].strip()
                         http_ports.append(port)
             return http_ports
+        except FileNotFoundError:
+            print(f"El archivo {self.output_fullpath} no se encontró.")
+            return []
+        except Exception as e:
+            print(f"Se produjo un error al leer {self.output_fullpath}: {e}")
+            return []
+
+    def get_open_dns(self):
+        dns_ports = []
+        try:
+            with open(self.output_fullpath, 'r') as file:
+                for line in file:
+                    if ('dns' in line.lower() or 'domain' in line.lower()) and 'open' in line.lower():
+                        port = line.split('/')[0].strip()
+                        dns_ports.append(port)
+            return dns_ports
         except FileNotFoundError:
             print(f"El archivo {self.output_fullpath} no se encontró.")
             return []
