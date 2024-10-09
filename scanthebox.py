@@ -1,20 +1,17 @@
 import argparse
 import os
 import sys
+import subprocess
 import time
 import requests
 # import yaml
 from modules.nmap_class import Nmap
 from modules.http_class import Http
+from modules.dns_class import Dns
 from modules.config_class import Config
 from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml, check_required_modules
 from modules.output import success, error, info
 from modules.loader_prompt import ScanShell
-
-def nmap_all_ports(hostname):
-    print(f"Scanning all TCP ports")
-    nmap_command = f"xterm -hold -e 'nmap -p- -T4 -Pn {hostname} -oA nmap/all-ports'"
-    subprocess.Popen(nmap_command, shell=True)
 
 def get_whatweb_command(hostname, port):
     return f"xterm -hold -e 'whatweb -a 4 http://{hostname}:{port} 2> /dev/null| tee whatweb_{hostname}_{port}'"
@@ -40,32 +37,6 @@ def get_nuclei_command(hostname, port):
 
 def get_nikto_command(hostname, port):
     return f"xterm -hold -e 'nikto -host http://{hostname}:{port} | tee nikto_{hostname}_{port}'"
-
-def dns_query(hostname):
-    dns_server = get_ip_from_etc_hosts( hostname )
-    domain = hostname
-
-    record_types = ["A", "MX", "NS", "TXT", "CNAME", "SRV", "ANY"]
-    for record_type in record_types:
-        subprocess.run(['dig', f'@{dns_server}', domain, record_type], check=True)
-    # Attempt zone transfer (AXFR)
-    subprocess.run(['dig', f'@{dns_server}', domain, 'AXFR'], check=True)
-
-def get_ip_from_etc_hosts(hostname):
-    try:
-        with open('/etc/hosts', 'r') as hosts_file:
-            for line in hosts_file:
-                l = line.strip()
-                if f"{hostname}" in l:
-                    return l.split()[0]
-        print(f"Hostname {hostname} not found in /etc/hosts")
-        return None
-    except FileNotFoundError:
-        print("/etc/hosts file not found")
-        return None
-    except Exception as e:
-        print(f"An error occurred while reading /etc/hosts: {e}")
-        return None
 
 def main():
 
@@ -117,11 +88,16 @@ def main():
         nmap.fingerprint(open_ports)
 
         http_port_list = nmap.get_open_http()
+        dns_port_list = nmap.get_open_dns()
         
         if http_port_list:
             http = Http(http_port_list, cfg)
             http.set_hostname(hostname)
             http.spawn_tools()
+
+        if dns_port_list:
+            dns = Dns(cfg)
+            dns.dns_query()
 
         sys.exit(1)
 
@@ -135,19 +111,6 @@ def main():
         sys.exit(0)
     else:
         usage()
-  
-
-
-
-    if http_port_list:
-        spawn_http_tools(hostname, http_port_list)
-
-    # xterm for all ports
-    nmap_all_ports( hostname )
-
-    # Perform detailed nmap scans on open ports
-    # if open_ports:
-    #     nmap_fingerprint(hostname, open_ports)
 
 if __name__ == "__main__":
     check_required_modules()

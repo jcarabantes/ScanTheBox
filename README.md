@@ -76,8 +76,9 @@ This will enter an interactive shell where you can continue working with the res
 
 ## Todo
 * Migrate all method to the Http class
+* config class has hostname and ip now, remove unnecessary usage of set_hostname
+* Implement an nmap.get_port_list("string to fetch like http or dns")
 * Extract HTTP and DNS from `nmap_fingerprint`, that should be independent and should work from the output
-* Save DNS output
 * Add enum4linux command for port 445: `enum4linux -a solarlab.htb`
 * load mode: check if workspace already exists
 
