@@ -8,6 +8,7 @@ import requests
 from modules.nmap_class import Nmap
 from modules.http_class import Http
 from modules.dns_class import Dns
+from modules.smb_class import Smb
 from modules.config_class import Config
 from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml, check_required_modules
 from modules.output import success, error, info
@@ -85,10 +86,11 @@ def main():
         open_ports = nmap.get_tcp_ports()
 
         # lets execute -sC and -sV on each common port
-        nmap.fingerprint(open_ports)
+        # nmap.fingerprint(open_ports)
 
         http_port_list = nmap.get_open_http()
         dns_port_list = nmap.get_open_dns()
+        smb_port_list = nmap.get_open_smb()
         
         if http_port_list:
             http = Http(http_port_list, cfg)
@@ -98,6 +100,12 @@ def main():
         if dns_port_list:
             dns = Dns(cfg)
             dns.dns_query()
+
+        if smb_port_list:
+            smb = Smb(smb_port_list, cfg)
+            smb.set_hostname(hostname)
+            smb.spawn_tools()
+
 
         sys.exit(1)
 

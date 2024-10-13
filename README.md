@@ -80,7 +80,10 @@ This will enter an interactive shell where you can continue working with the res
 * Implement an nmap.get_port_list("string to fetch like http or dns")
 * Extract HTTP and DNS from `nmap_fingerprint`, that should be independent and should work from the output
 * Add enum4linux command for port 445: `enum4linux -a solarlab.htb`
+* ldap: ldapsearch -H ldap://cicada.htb -x -s base -b '' "(objectClass=*)" "*" + | tee ldapsearch01
 * load mode: check if workspace already exists
+* smb: smbmap -H cicada.htb  -u 'guest' -p '' 2> /dev/null 
+* rid enum: nxc smb cicada.htb -u "guest" -p "" --rid-brute or impacket-lookupsid -no-pass cicada.htb/guest@10.10.11.35
 
 ## License
 

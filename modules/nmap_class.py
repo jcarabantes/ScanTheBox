@@ -8,7 +8,7 @@ class Nmap:
         
         self.config = config_cls.get_yaml_content()
         self.workspace = config_cls.get_workspace()
-        self.output_fullpath = os.path.join(self.workspace, self.config['nmap_common_output'])
+        self.output_fullpath = os.path.join(self.workspace, self.config['nmap_all_tcp_output'])
         self.hostname = None
         self.last_scan_result = None
 
@@ -69,6 +69,23 @@ class Nmap:
         except Exception as e:
             print(f"Se produjo un error al leer {self.output_fullpath}: {e}")
             return []
+
+    def get_open_smb(self):
+        smb_ports = []
+        try:
+            with open(self.output_fullpath, 'r') as file:
+                for line in file:
+                    if ('smb' in line.lower() or 'microsoft-ds' in line.lower()) and 'open' in line.lower():
+                        port = line.split('/')[0].strip()
+                        smb_ports.append(port)
+            return smb_ports
+        except FileNotFoundError:
+            print(f"El archivo {self.output_fullpath} no se encontró.")
+            return []
+        except Exception as e:
+            print(f"Se produjo un error al leer {self.output_fullpath}: {e}")
+            return []
+
 
     def fingerprint(self, ports):
         info(f"Starting nmap scan for detailed fingerprinting on open ports: {', '.join(ports)}")

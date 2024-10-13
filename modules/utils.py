@@ -32,7 +32,7 @@ def parse_yaml(config_file):
     return config
 
 def check_tools():
-    required_tools = ['xterm', 'nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker', 'nxc']
+    required_tools = ['xterm', 'nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker', 'nxc', 'smbmap', 'enum4linux-ng']
     missing_tools = []
     
     for tool in required_tools:
@@ -56,7 +56,7 @@ def check_hostname_responsive(hostname):
         success(f"Hostname {hostname} is responsive")
 
 def create_structure():
-    folders = ['files', 'gobuster', 'nmap', 'wordlists']
+    folders = ['files', 'gobuster', 'nmap', 'wordlists', 'smb']
     for folder in folders:
         if not os.path.exists(folder):
             os.makedirs(folder)

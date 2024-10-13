@@ -1,5 +1,5 @@
-nmap_common_output: "nmap/common-tcp-ports.nmap"
-nmap_fingerprint_output: "nmap/common-fingerprint.nmap"
+nmap_all_tcp_output: "nmap/all-tcp-ports.nmap"
+nmap_fingerprint_output: "nmap/all-fingerprint.nmap"
 
 wordlists:
   common: "/usr/share/dirb/wordlists/common.txt"
