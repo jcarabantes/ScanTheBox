@@ -18,7 +18,7 @@ class Nmap:
     def scan_all_tcp_ports(self):
         info(f"Starting nmap scan for all TCP ports on {self.hostname}")
         # print(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath])
-        result = subprocess.run(['nmap', '-Pn', '-p445', '-T4', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
+        result = subprocess.run(['nmap', '-Pn', '-p8000', '-T4', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
         print(result.stdout)
         if result.stderr:
             print("Errors:", result.stderr)
@@ -38,52 +38,24 @@ class Nmap:
                 ports.append(port)
         return ports
 
-    def get_open_http(self):
-        http_ports = []
+    def get_ports_by_name(self, service_name_list):
+        """ service_name_list is a list of nmap string services like
+        'dns'
+        'http'
+        """
+        ports = []
         try:
             with open(self.output_fullpath, 'r') as file:
                 for line in file:
-                    if 'http' in line.lower() and 'open' in line.lower():
+                    if any(keyword in line.lower() for keyword in service_name_list) and 'open' in line.lower():
                         port = line.split('/')[0].strip()
-                        http_ports.append(port)
-            return http_ports
+                        ports.append(port)
+            return ports
         except FileNotFoundError:
-            print(f"El archivo {self.output_fullpath} no se encontró.")
+            print(f"File {self.output_fullpath} not found.")
             return []
         except Exception as e:
-            print(f"Se produjo un error al leer {self.output_fullpath}: {e}")
-            return []
-
-    def get_open_dns(self):
-        dns_ports = []
-        try:
-            with open(self.output_fullpath, 'r') as file:
-                for line in file:
-                    if ('dns' in line.lower() or 'domain' in line.lower()) and 'open' in line.lower():
-                        port = line.split('/')[0].strip()
-                        dns_ports.append(port)
-            return dns_ports
-        except FileNotFoundError:
-            print(f"El archivo {self.output_fullpath} no se encontró.")
-            return []
-        except Exception as e:
-            print(f"Se produjo un error al leer {self.output_fullpath}: {e}")
-            return []
-
-    def get_open_smb(self):
-        smb_ports = []
-        try:
-            with open(self.output_fullpath, 'r') as file:
-                for line in file:
-                    if ('smb' in line.lower() or 'microsoft-ds' in line.lower()) and 'open' in line.lower():
-                        port = line.split('/')[0].strip()
-                        smb_ports.append(port)
-            return smb_ports
-        except FileNotFoundError:
-            print(f"El archivo {self.output_fullpath} no se encontró.")
-            return []
-        except Exception as e:
-            print(f"Se produjo un error al leer {self.output_fullpath}: {e}")
+            print(f"Error while reading {self.output_fullpath}: {e}")
             return []
 
 

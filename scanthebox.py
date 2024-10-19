@@ -88,9 +88,9 @@ def main():
         # lets execute -sC and -sV on each common port
         # nmap.fingerprint(open_ports)
 
-        http_port_list = nmap.get_open_http()
-        dns_port_list = nmap.get_open_dns()
-        smb_port_list = nmap.get_open_smb()
+        http_port_list = nmap.get_ports_by_name(['http'])
+        dns_port_list = nmap.get_ports_by_name(['dns', 'domain'])
+        smb_port_list = nmap.get_ports_by_name(['smb', 'microsoft-ds'])
         
         if http_port_list:
             http = Http(http_port_list, cfg)
