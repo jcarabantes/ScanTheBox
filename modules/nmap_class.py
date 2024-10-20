@@ -18,7 +18,7 @@ class Nmap:
     def scan_all_tcp_ports(self):
         info(f"Starting nmap scan for all TCP ports on {self.hostname}")
         # print(['nmap', '-Pn', self.hostname, '-oN', self.output_fullpath])
-        result = subprocess.run(['nmap', '-Pn', '-p8000', '-T4', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
+        result = subprocess.run(['nmap', '-Pn', '-p-', '-T4', self.hostname, '-oN', self.output_fullpath], capture_output=True, text=True)
         print(result.stdout)
         if result.stderr:
             print("Errors:", result.stderr)

@@ -2,7 +2,22 @@ import subprocess
 import os
 import yaml
 import sys
+import requests
 from modules.output import success, error, info
+
+
+def check_http(hostname, open_ports):
+    http_ports = []
+    for port in open_ports:
+        try:
+            url = f"http://{hostname}:{port}"
+            response = requests.get(url, timeout=5)
+            if response.status_code:
+                http_ports.append(port)
+        except requests.exceptions.RequestException:
+            continue
+    
+    return http_ports
 
 
 def check_required_modules():
@@ -32,7 +47,7 @@ def parse_yaml(config_file):
     return config
 
 def check_tools():
-    required_tools = ['xterm', 'nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker', 'nxc', 'smbmap', 'enum4linux-ng']
+    required_tools = ['xterm', 'nuclei', 'nmap', 'gobuster', 'whatweb', 'dig', 'wfuzz', 'nikto', 'docker', 'nxc', 'smbmap', 'enum4linux-ng']
     missing_tools = []
     
     for tool in required_tools:

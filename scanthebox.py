@@ -10,7 +10,7 @@ from modules.http_class import Http
 from modules.dns_class import Dns
 from modules.smb_class import Smb
 from modules.config_class import Config
-from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml, check_required_modules
+from modules.utils import check_tools, check_hostname_responsive, create_structure, usage, parse_yaml, check_required_modules, check_http
 from modules.output import success, error, info
 from modules.loader_prompt import ScanShell
 
@@ -86,9 +86,9 @@ def main():
         open_ports = nmap.get_tcp_ports()
 
         # lets execute -sC and -sV on each common port
-        # nmap.fingerprint(open_ports)
+        nmap.fingerprint(open_ports)
 
-        http_port_list = nmap.get_ports_by_name(['http'])
+        http_port_list = check_http(hostname, open_ports)
         dns_port_list = nmap.get_ports_by_name(['dns', 'domain'])
         smb_port_list = nmap.get_ports_by_name(['smb', 'microsoft-ds'])
         

@@ -75,6 +75,7 @@ This will enter an interactive shell where you can continue working with the res
    ```
 
 ## Todo
+* Chemistry, check if is http even if nmap service does not show that (like upnp in 5000)
 * Migrate all method to the Http class
 * config class has hostname and ip now, remove unnecessary usage of set_hostname
 * Extract HTTP and DNS from `nmap_fingerprint`, that should be independent and should work from the output
