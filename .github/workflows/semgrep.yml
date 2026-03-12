@@ -19,13 +19,10 @@ jobs:
         run: |
           pip install semgrep
 
-      # Opcion A: usar reglas automáticas de Semgrep
-      - name: Ejecutar Semgrep (auto)
+      - name: Clone semgrep community rules
         run: |
-          semgrep scan --config auto --error
+          git clone https://github.com/semgrep/semgrep-rules.git
 
-      # Opción B: usar tu script/reglas personalizadas
-      # Si tienes reglas en semgrep_rules/ o semgrep.yml, por ejemplo:
-      # - name: Ejecutar Semgrep con reglas propias
-      #   run: |
-      #     semgrep scan --config semgrep_rules/ --lang python --error
+      - name: Run Semgrep with python rules
+        run: |
+          semgrep scan --config semgrep-rules/python/ --error
